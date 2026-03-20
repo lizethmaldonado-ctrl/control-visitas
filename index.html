@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Control de Acceso</title>
+
+<style>
+body {
+    font-family: Arial;
+    background: #f4f6f9;
+    text-align: center;
+    margin-top: 60px;
+}
+
+.card {
+    background: white;
+    padding: 30px;
+    border-radius: 12px;
+    width: 320px;
+    margin: auto;
+    box-shadow: 0 0 15px rgba(0,0,0,0.1);
+}
+
+h2 {
+    margin-bottom: 10px;
+}
+
+input {
+    width: 90%;
+    padding: 12px;
+    margin: 15px 0;
+    font-size: 16px;
+}
+
+button {
+    padding: 12px 20px;
+    background: #0078D4;
+    color: white;
+    border: none;
+    cursor: pointer;
+    width: 100%;
+    font-size: 16px;
+}
+
+button:hover {
+    background: #005a9e;
+}
+
+.msg {
+    margin-top: 20px;
+    font-weight: bold;
+    font-size: 16px;
+}
+
+.loading {
+    color: orange;
+}
+
+.success {
+    color: green;
+}
+
+.error {
+    color: red;
+}
+</style>
+
+</head>
+
+<body>
+
+<div class="card">
+    <h2 id="areaTitulo">Área</h2>
+
+    <input type="number" id="cedula" placeholder="Ingrese su cédula" />
+
+    <button onclick="enviar()">Registrar</button>
+
+    <div class="msg" id="mensaje"></div>
+</div>
+
+<script>
+
+// 🔹 Capturar área desde QR
+const params = new URLSearchParams(window.location.search);
+const area = params.get("area") || "General";
+
+document.getElementById("areaTitulo").innerText = "Área: " + area;
+
+
+// 🔹 Función principal
+async function enviar() {
+
+    const cedula = document.getElementById("cedula").value;
+    const msg = document.getElementById("mensaje");
+
+    if (!cedula) {
+        msg.innerText = "⚠️ Ingrese la cédula";
+        msg.className = "msg error";
+        return;
+    }
+
+    msg.innerText = "Procesando...";
+    msg.className = "msg loading";
+
+    try {
+
+        const response = await fetch("AQUI_PEGA_TU_URL_DEL_FLOW", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                cedula: cedula,
+                area: area
+            })
+        });
+
+        const data = await response.json();
+
+        msg.innerText = data.mensaje;
+
+        // 🔹 Colores según respuesta
+        if (data.mensaje.includes("❌") || data.mensaje.includes("⛔")) {
+            msg.className = "msg error";
+        } else if (data.mensaje.includes("✅") || data.mensaje.includes("🔴")) {
+            msg.className = "msg success";
+        }
+
+        document.getElementById("cedula").value = "";
+
+    } catch (error) {
+        msg.innerText = "❌ Error de conexión";
+        msg.className = "msg error";
+    }
+}
+
+</script>
+
+</body>
+</html>
