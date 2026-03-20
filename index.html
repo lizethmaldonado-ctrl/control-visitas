@@ -2,77 +2,83 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Control de Acceso</title>
 
 <style>
 body {
-    font-family: Arial;
-    background: #f4f6f9;
-    text-align: center;
-    margin-top: 60px;
+    font-family: 'Segoe UI', Arial;
+    background: linear-gradient(135deg, #0078D4, #00B4D8);
+    margin: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
 }
 
 .card {
     background: white;
     padding: 30px;
-    border-radius: 12px;
-    width: 320px;
-    margin: auto;
-    box-shadow: 0 0 15px rgba(0,0,0,0.1);
+    border-radius: 20px;
+    width: 90%;
+    max-width: 350px;
+    text-align: center;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
 }
 
 h2 {
-    margin-bottom: 10px;
+    margin-bottom: 5px;
+}
+
+.area {
+    color: gray;
+    margin-bottom: 20px;
 }
 
 input {
-    width: 90%;
-    padding: 12px;
-    margin: 15px 0;
-    font-size: 16px;
+    width: 100%;
+    padding: 15px;
+    border-radius: 10px;
+    border: 1px solid #ccc;
+    font-size: 18px;
+    text-align: center;
 }
 
 button {
-    padding: 12px 20px;
+    width: 100%;
+    padding: 15px;
+    margin-top: 15px;
+    border-radius: 10px;
+    border: none;
     background: #0078D4;
     color: white;
-    border: none;
+    font-size: 18px;
     cursor: pointer;
-    width: 100%;
-    font-size: 16px;
 }
 
-button:hover {
-    background: #005a9e;
+button:active {
+    transform: scale(0.97);
 }
 
 .msg {
     margin-top: 20px;
     font-weight: bold;
-    font-size: 16px;
+    font-size: 18px;
 }
 
-.loading {
-    color: orange;
-}
-
-.success {
-    color: green;
-}
-
-.error {
-    color: red;
-}
+.success { color: green; }
+.error { color: red; }
+.loading { color: orange; }
 </style>
-
 </head>
 
 <body>
 
 <div class="card">
-    <h2 id="areaTitulo">Área</h2>
+    <h2>Control de Acceso</h2>
+    <div class="area" id="areaTexto"></div>
 
-    <input type="number" id="cedula" placeholder="Ingrese su cédula" />
+    <input type="number" id="cedula" placeholder="Ingrese su cédula">
 
     <button onclick="enviar()">Registrar</button>
 
@@ -81,14 +87,13 @@ button:hover {
 
 <script>
 
-// 🔹 Capturar área desde QR
+// 🔹 Área desde QR
 const params = new URLSearchParams(window.location.search);
 const area = params.get("area") || "General";
 
-document.getElementById("areaTitulo").innerText = "Área: " + area;
+document.getElementById("areaTexto").innerText = "Área: " + area;
 
-
-// 🔹 Función principal
+// 🔹 Función
 async function enviar() {
 
     const cedula = document.getElementById("cedula").value;
@@ -105,7 +110,7 @@ async function enviar() {
 
     try {
 
-        const response = await fetch("AQUI_PEGA_TU_URL_DEL_FLOW", {
+        const response = await fetch("AQUI_TU_URL_DEL_FLOW", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
@@ -120,10 +125,9 @@ async function enviar() {
 
         msg.innerText = data.mensaje;
 
-        // 🔹 Colores según respuesta
         if (data.mensaje.includes("❌") || data.mensaje.includes("⛔")) {
             msg.className = "msg error";
-        } else if (data.mensaje.includes("✅") || data.mensaje.includes("🔴")) {
+        } else {
             msg.className = "msg success";
         }
 
@@ -134,7 +138,6 @@ async function enviar() {
         msg.className = "msg error";
     }
 }
-
 </script>
 
 </body>
