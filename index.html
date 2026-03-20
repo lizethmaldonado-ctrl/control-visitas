@@ -21,9 +21,15 @@ body {
     padding: 30px;
     border-radius: 20px;
     width: 90%;
-    max-width: 350px;
+    max-width: 400px;
     text-align: center;
     box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+    position: relative;
+}
+
+.card img {
+    max-width: 150px;
+    margin-bottom: 20px;
 }
 
 h2 {
@@ -75,29 +81,33 @@ button:active {
 <body>
 
 <div class="card">
+    <!-- Logo de la empresa -->
+    <img src="https://tuempresa.com/logo.png" alt="Logo Empresa">
+
     <h2>Control de Acceso</h2>
     <div class="area" id="areaTexto"></div>
-
     <input type="number" id="cedula" placeholder="Ingrese su cédula">
-
     <button onclick="enviar()">Registrar</button>
 
     <div class="msg" id="mensaje"></div>
+    <div class="msg" id="nombreVisitante" style="margin-top:10px;"></div>
 </div>
 
-<script>
+<!-- Sonidos -->
+<audio id="beepEntrada" src="https://www.soundjay.com/buttons/beep-07.mp3"></audio>
+<audio id="beepSalida" src="https://www.soundjay.com/buttons/beep-10.mp3"></audio>
 
-// 🔹 Área desde QR
+<script>
+// Área desde QR
 const params = new URLSearchParams(window.location.search);
 const area = params.get("area") || "General";
-
 document.getElementById("areaTexto").innerText = "Área: " + area;
 
-// 🔹 Función
+// Función principal
 async function enviar() {
-
     const cedula = document.getElementById("cedula").value;
     const msg = document.getElementById("mensaje");
+    const nombreDiv = document.getElementById("nombreVisitante");
 
     if (!cedula) {
         msg.innerText = "⚠️ Ingrese la cédula";
@@ -107,28 +117,30 @@ async function enviar() {
 
     msg.innerText = "Procesando...";
     msg.className = "msg loading";
+    nombreDiv.innerText = "";
 
     try {
-
         const response = await fetch("AQUI_TU_URL_DEL_FLOW", {
             method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
-                cedula: cedula,
-                area: area
-            })
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ cedula: cedula, area: area })
         });
 
         const data = await response.json();
-
         msg.innerText = data.mensaje;
 
+        // Colores y sonido según respuesta
         if (data.mensaje.includes("❌") || data.mensaje.includes("⛔")) {
             msg.className = "msg error";
         } else {
             msg.className = "msg success";
+            // Mostrar nombre si lo devuelve el flujo
+            if (data.nombre) {
+                nombreDiv.innerText = "Visitante: " + data.nombre;
+            }
+            // Reproducir sonido
+            if (data.mensaje.includes("✅")) document.getElementById("beepEntrada").play();
+            if (data.mensaje.includes("🔴")) document.getElementById("beepSalida").play();
         }
 
         document.getElementById("cedula").value = "";
